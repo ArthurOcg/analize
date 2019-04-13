@@ -3,16 +3,16 @@ import os
 
 app = Flask(__name__)
 
-@app.route('/hello')
+@app.route('/hello', methods=['GET'])
 def hello():
     response = {
         "data": "Hello World!"
         }
     return jsonify(response), 200
 
-@app.route('/oi')
+@app.route('/oi', methods=['GET'])
 def comecando():
-    return "Só vai assim!"
+    return {"Só vai assim!"}, 200
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
