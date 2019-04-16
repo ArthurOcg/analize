@@ -58,7 +58,7 @@ def read_image():
         with open('temp_image.jpg', 'wb') as f:
             f.write(image_data)
             f.close()
-        img = cv2.imread('temp_image.jpg')
+        img = cv2.imread('tmp_image.jpg')
 
         return jsonify({"histograma": geraHistograma(img)})
 
