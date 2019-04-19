@@ -81,7 +81,7 @@ def read_image():
         histo = geraHistograma(result[2])
 
 
-        return jsonify({"imagem": "data:image/jpeg;base64"+ str(shibiu)[1:], "histo_cort": histo})
+        return jsonify({"imagem": "data:image/jpeg;base64,"+ str(shibiu)[1:], "histo_cort": histo})
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
