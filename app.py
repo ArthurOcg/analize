@@ -53,10 +53,12 @@ def geraHistograma(imagem):
 @app.route('/analize', methods=['POST'])
 def read_image():
     if request.method == 'POST':
-        imagem = request.get_json()['mensagem']
-        image_data = base64.b64decode(imagem)
+        header_len = len('data:image/jpeg;base64,')
+        image_data = request.json['mensagem'][header_len:];
+        #imagem = request.get_json()['mensagem']
+        imagem = base64.b64decode(image_data)
         with open('tmp_image.jpg', 'wb') as f:
-            f.write(image_data)
+            f.write(imagem)
             f.close()
         img = cv2.imread('tmp_image.jpg')
 
