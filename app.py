@@ -3,6 +3,7 @@ from flask_cors import CORS
 import os
 import base64
 import cv2
+import numpy
 
 app = Flask(__name__)
 CORS(app)
@@ -18,11 +19,27 @@ def hello():
 def comecando():
     return jsonify({"Mensagem": "Só vai assim!"}), 200
 
-@app.route('/ui', methods=['POST']) 
-def geraTexto():    
-    if request.method == 'POST':
-        message = request.get_json()
-        return message['imagem'],201
+
+def recebeImagem(request):
+    tamanho_cabeca = len('data:image/jpeg;base64,') #captura tamanho da informacao que sera removida
+    image_data = request.json['imagem'][tamanho_cabeca:] #pega a imagem removendo o cabecalho
+    print("Pegou imagem do request")
+    imagem = base64.b64decode(image_data) #decodifica de base64 para imagem comum
+    print("Imagem decodificada")
+    with open('tmp_image.jpg', 'wb') as f: #vai gravar a imagem comum no servidor
+        f.write(imagem)
+        f.close()
+    img = cv2.imread('tmp_image.jpg')  #lendo a imagem do servidor
+    print("Leu a imagem")
+    imagem_de_saida = img.copy()
+    print ("Fez a copia")
+    cortada = imagem_de_saida[1850:2250, 1350:1750]
+    cv2.rectangle(imagem_de_saida, (1850, 2250), (1350, 1750), (0, 255, 0), 8)
+
+    return [cortada, imagem_de_saida, cortada]
+
+
+
 
 def geraHistograma(imagem):
     
@@ -50,19 +67,21 @@ def geraHistograma(imagem):
     novaResult.extend(novaAzul)
     return novaResult
 
+def encode_image(img):
+    ret, data = cv2.imencode('.jpg', img)
+    return base64.b64encode(data)
+
 @app.route('/analize', methods=['POST'])
 def read_image():
     if request.method == 'POST':
-        header_len = len('data:image/jpeg;base64,')
-        image_data = request.json['mensagem'][header_len:];
-        #imagem = request.get_json()['mensagem']
-        imagem = base64.b64decode(image_data)
-        with open('tmp_image.jpg', 'wb') as f:
-            f.write(imagem)
-            f.close()
-        img = cv2.imread('tmp_image.jpg')
+        result = recebeImagem(request)
+        corte = result[0]
+        sinalizada = result[1]
+        shibiu = encode_image(sinalizada)
+        histo = geraHistograma(result[2])
 
-        return jsonify({"histograma": geraHistograma(img)})
+
+        return jsonify({"imagem": 'data:image/jpeg;base64'+ str(shibiu), "histo_cort": histo})
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
