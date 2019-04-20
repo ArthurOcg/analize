@@ -77,11 +77,11 @@ def read_image():
         result = recebeImagem(request)
         corte = result[0]
         sinalizada = result[1]
-        shibiu = encode_image(sinalizada)
+        img_edit = encode_image(sinalizada)
         histo = geraHistograma(result[2])
 
 
-        return jsonify({"imagem": "data:image/jpeg;base64,"+ str(shibiu)[1:], "histo_cort": histo})
+        return jsonify({"imagem": "data:image/jpeg;base64,"+ str(img_edit)[1:], "histo_cort": histo})
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
